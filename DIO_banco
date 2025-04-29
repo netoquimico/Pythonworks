@@ -1,0 +1,64 @@
+def menu():
+    print("\n===== BANCO ZÉ NETO =====")
+    print("1 - Depositar")
+    print("2 - Sacar")
+    print("3 - Extrato")
+    print("0 - Sair")
+    return input("Escolha uma opção: ")
+
+def depositar(saldo, extrato):
+    valor = float(input("Valor do depósito: R$ "))
+    if valor > 0:
+        saldo += valor
+        extrato.append(f"Depósito: +R$ {valor:.2f}")
+        print("Depósito realizado com sucesso.")
+    else:
+        print("Valor inválido.")
+    return saldo, extrato
+
+def sacar(saldo, extrato, limite=500, saques_diarios=3, cont_saques=0):
+    if cont_saques >= saques_diarios:
+        print("Limite diário de saques atingido.")
+    else:
+        valor = float(input("Valor do saque: R$ "))
+        if valor > saldo:
+            print("Saldo insuficiente.")
+        elif valor > limite:
+            print("Saque acima do limite permitido (R$ 500).")
+        elif valor <= 0:
+            print("Valor inválido.")
+        else:
+            saldo -= valor
+            extrato.append(f"Saque: -R$ {valor:.2f}")
+            cont_saques += 1
+            print("Saque realizado com sucesso.")
+    return saldo, extrato, cont_saques
+
+def ver_extrato(saldo, extrato):
+    print("\n===== EXTRATO =====")
+    if not extrato:
+        print("Nenhuma movimentação.")
+    else:
+        for item in extrato:
+            print(item)
+    print(f"Saldo atual: R$ {saldo:.2f}")
+
+# Execução principal
+saldo = 0
+extrato = []
+cont_saques = 0
+
+while True:
+    opcao = menu()
+
+    if opcao == "1":
+        saldo, extrato = depositar(saldo, extrato)
+    elif opcao == "2":
+        saldo, extrato, cont_saques = sacar(saldo, extrato, cont_saques=cont_saques)
+    elif opcao == "3":
+        ver_extrato(saldo, extrato)
+    elif opcao == "0":
+        print("Obrigado por usar o Banco Zé Neto!")
+        break
+    else:
+        print("Opção inválida. Tente novamente.")
