@@ -1,0 +1,88 @@
+# Constantes
+LIMITE_SAQUE = 500
+SAQUES_DIARIOS_MAX = 3
+
+def menu():
+    """Exibe o menu principal e retorna a opção escolhida pelo usuário."""
+    print("\n===== BANCO ZÉ NETO =====")
+    print("1 - Depositar")
+    print("2 - Sacar")
+    print("3 - Extrato")
+    print("0 - Sair")
+    return input("Escolha uma opção: ")
+
+def depositar(saldo, extrato):
+    """Realiza a operação de depósito."""
+    try:
+        valor = float(input("Valor do depósito: R$ "))
+        if valor > 0:
+            saldo += valor
+            extrato.append(f"Depósito: +R$ {valor:.2f}")
+            print("Depósito realizado com sucesso.")
+        else:
+            print("Valor inválido. O depósito deve ser maior que zero.")
+    except ValueError:
+        print("Entrada inválida. Por favor, insira um número válido.")
+    return saldo, extrato
+
+def sacar(saldo, extrato, cont_saques):
+    """Realiza a operação de saque."""
+    try:
+        if cont_saques >= SAQUES_DIARIOS_MAX:
+            print("Limite diário de saques atingido.")
+            return saldo, extrato, cont_saques
+
+        valor = float(input("Valor do saque: R$ "))
+        if valor > saldo:
+            print("Saldo insuficiente.")
+        elif valor > LIMITE_SAQUE:
+            print(f"Saque acima do limite permitido (R$ {LIMITE_SAQUE:.2f}).")
+        elif valor <= 0:
+            print("Valor inválido. O saque deve ser maior que zero.")
+        else:
+            saldo -= valor
+            extrato.append(f"Saque: -R$ {valor:.2f}")
+            cont_saques += 1
+            print("Saque realizado com sucesso.")
+    except ValueError:
+        print("Entrada inválida. Por favor, insira um número válido.")
+    return saldo, extrato, cont_saques
+
+def ver_extrato(saldo, extrato):
+    """Exibe o extrato da conta."""
+    print("\n===== EXTRATO =====")
+    if not extrato:
+        print("Nenhuma movimentação.")
+    else:
+        for item in extrato:
+            print(item)
+    print(f"Saldo atual: R$ {saldo:.2f}")
+
+def main():
+    """Função principal que controla o fluxo do programa."""
+    # Dados da conta
+    conta = {
+        "saldo": 0,
+        "extrato": [],
+        "cont_saques": 0
+    }
+
+    while True:
+        opcao = menu()
+
+        if opcao == "1":
+            conta["saldo"], conta["extrato"] = depositar(conta["saldo"], conta["extrato"])
+        elif opcao == "2":
+            conta["saldo"], conta["extrato"], conta["cont_saques"] = sacar(
+                conta["saldo"], conta["extrato"], conta["cont_saques"]
+            )
+        elif opcao == "3":
+            ver_extrato(conta["saldo"], conta["extrato"])
+        elif opcao == "0":
+            print("Obrigado por usar o Banco Zé Neto!")
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+
+if __name__ == "__main__":
+    main()
