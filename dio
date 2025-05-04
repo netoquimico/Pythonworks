@@ -1,0 +1,99 @@
+from abc import ABC, abstractmethod
+
+class Transacao(ABC):
+    @abstractmethod
+    def registrar(self, conta):
+        pass
+
+class Operacao(Transacao):
+    def __init__(self, tipo, valor):
+        self.tipo = tipo
+        self.valor = valor
+
+    def registrar(self, conta):
+        if self.tipo == "depósito":
+            conta._saldo += self.valor
+            conta._extrato.append(f"Depósito: +R$ {self.valor:.2f}")
+        elif self.tipo == "saque":
+            if conta.sacar(self.valor):
+                conta._extrato.append(f"Saque: -R$ {self.valor:.2f}")
+        else:
+            print("Operação desconhecida.")
+
+class ContaBancaria(ABC):
+    def __init__(self, titular):
+        self._titular = titular
+        self._saldo = 0.0
+        self._extrato = []
+
+    @abstractmethod
+    def sacar(self, valor):
+        pass
+
+    def depositar(self, valor):
+        if valor > 0:
+            operacao = Operacao("depósito", valor)
+            operacao.registrar(self)
+            print("Depósito realizado.")
+        else:
+            print("Valor inválido.")
+
+    def ver_extrato(self):
+        print("\n===== EXTRATO =====")
+        for item in self._extrato:
+            print(item)
+        print(f"Saldo atual: R$ {self._saldo:.2f}")
+
+class ContaComum(ContaBancaria):
+    def __init__(self, titular):
+        super().__init__(titular)
+        self._limite_saque = 500
+        self._saques_diarios = 3
+        self._cont_saques = 0
+
+    def sacar(self, valor):
+        if self._cont_saques >= self._saques_diarios:
+            print("Limite diário de saques atingido.")
+            return False
+        elif valor > self._saldo:
+            print("Saldo insuficiente.")
+            return False
+        elif valor > self._limite_saque:
+            print("Saque acima do limite permitido.")
+            return False
+        elif valor <= 0:
+            print("Valor inválido.")
+            return False
+        else:
+            self._saldo -= valor
+            self._cont_saques += 1
+            print("Saque realizado.")
+            return True
+
+# Interface simples
+def menu():
+    print("\n===== BANCO ZÉ NETO POO =====")
+    print("1 - Depositar")
+    print("2 - Sacar")
+    print("3 - Extrato")
+    print("0 - Sair")
+    return input("Escolha uma opção: ")
+
+# Execução
+conta = ContaComum("José Antônio")
+
+while True:
+    opcao = menu()
+    if opcao == "1":
+        valor = float(input("Valor do depósito: R$ "))
+        conta.depositar(valor)
+    elif opcao == "2":
+        valor = float(input("Valor do saque: R$ "))
+        conta.sacar(valor)
+    elif opcao == "3":
+        conta.ver_extrato()
+    elif opcao == "0":
+        print("Obrigado por usar o Banco Zé Neto POO!")
+        break
+    else:
+        print("Opção inválida.")
